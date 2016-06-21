@@ -40,20 +40,20 @@ server.on('listening', onListening);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-MongoClient.connect(url,function(err,database)
-    {
-      db = database;
-      db.collectionNames(gDate.d,function(err,result){
+// MongoClient.connect(url,function(err,database)
+//     {
+//       db = database;
+//       db.collectionNames(gDate.d,function(err,result){
         
-        if(result.length>0)
-        {
-          db.createCollection(gDate.d,function(err,result)
-          {if(err) console.log("there is an error: " + err);});
+//         if(result.length>0)
+//         {
+//           db.createCollection(gDate.d,function(err,result)
+//           {if(err) console.log("there is an error: " + err);});
           
-        }
-      });
-      if(err) console.log(err);
-    });
+//         }
+//       });
+//       if(err) console.log(err);
+//     });
               setInterval(function(){ 
             if(typeof(sensortag.temp)!="undefined")
             {
@@ -115,12 +115,12 @@ app.get('/dashboard', function(req, res) {
   console.log("Sending value from server... "+sensortag.type);
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  db.collectionNames(function(err, items) {
+  // db.collectionNames(function(err, items) {
         // console.log(items);
           res.render('dashboard', {
             "datelist" : items
             });
-        });
+        // });
 });
 
 
@@ -179,29 +179,29 @@ app.post('/chooseDate',function(req,res)
       
   console.log("from: " + chosenHourF + "to: " +  ' on:' + chosenDate);
   
-  collection =db.collection(chosenDate);
-  // find entry in specific time period 
+//   collection =db.collection(chosenDate);
+//   // find entry in specific time period 
 
-   switch(chosenType)
-   {
-    case "temp":
-        collection.find({hour:{$gte:chosenHourF,$lte:chosenHourT}} , {temp:1}).toArray(function(err,items){
-         output=exportData(items,1);
-        });
-        break;
+//    switch(chosenType)
+//    {
+//     case "temp":
+//         collection.find({hour:{$gte:chosenHourF,$lte:chosenHourT}} , {temp:1}).toArray(function(err,items){
+//          output=exportData(items,1);
+//         });
+//         break;
 
-    case "humi":
-        collection.find({hour:{$gte:chosenHourF,$lte:chosenHourT}} , {humi:1}).toArray(function(err,items){
-        output=exportData(items,2);
-        });
-        break;
+//     case "humi":
+//         collection.find({hour:{$gte:chosenHourF,$lte:chosenHourT}} , {humi:1}).toArray(function(err,items){
+//         output=exportData(items,2);
+//         });
+//         break;
 
-    case "lux":
-        collection.find({hour:{$gte:chosenHourF,$lte:chosenHourT}} , {lux:1}).toArray(function(err,items){
-output=exportData(items,3);
-        });
-        break;
-   }
+//     case "lux":
+//         collection.find({hour:{$gte:chosenHourF,$lte:chosenHourT}} , {lux:1}).toArray(function(err,items){
+// output=exportData(items,3);
+//         });
+//         break;
+//    }
     
     res.render('date',
     {
