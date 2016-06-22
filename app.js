@@ -5,12 +5,12 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 // database inported library
-var mongo = require('mongodb');
-var MongoClient = require('mongodb').MongoClient;
+// var mongo = require('mongodb');
+// var MongoClient = require('mongodb').MongoClient;
 // var monk = require('monk');
 // var db = monk('192.168.11.7:27017/sensorApp');
 var assert = require('assert');
-var ObjectId = require('mongodb').ObjectID;
+// var ObjectId = require('mongodb').ObjectID;
 var url = 'mongodb://<dbuser>:<dbpassword>@ds013599.mlab.com:13599/niin';
 // var jsdom = require('jsdom').jsdom;
 //  var document = jsdom('<html></html>', {});
