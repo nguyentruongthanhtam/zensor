@@ -118,7 +118,7 @@ app.get('/dashboard', function(req, res) {
   // db.collectionNames(function(err, items) {
         // console.log(items);
           res.render('dashboard', {
-            "datelist" : items
+            // "datelist" : items
             });
         // });
 });
@@ -213,7 +213,7 @@ app.post('/chooseDate',function(req,res)
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.set('view engine', 'pug');
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));

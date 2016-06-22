@@ -24,7 +24,6 @@
 	by Tom Igoe
 */
 
-var async = require('async');
 var SensorTag = require('sensortag');// sensortag library
 // var MongoClient = require('mongodb').MongoClient;
 // var assert = require('assert');
