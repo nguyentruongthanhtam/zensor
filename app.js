@@ -19,7 +19,7 @@ var url = 'mongodb://<dbuser>:<dbpassword>@ds013599.mlab.com:13599/niin';
 
 var db;
 var collection;
-var sensortag = require('./routes/sensortag');
+// var sensortag = require('./routes/sensortag');
 var routes = require('./routes/index');
 var users = require('./routes/users');
 var app = express();
@@ -105,14 +105,14 @@ io.on('connection',function(socket)
             
           })
       });
-sensortag.status = sStatus;
+// sensortag.status = sStatus;
 app.get('/',function(req, res, next) {
   res.render('index', { title: 'Express',});
 });
 
 app.get('/dashboard', function(req, res) {
   res.statusCode = 200;
-  console.log("Sending value from server... "+sensortag.type);
+  // console.log("Sending value from server... "+sensortag.type);
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   // db.collectionNames(function(err, items) {
