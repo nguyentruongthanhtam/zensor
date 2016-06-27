@@ -5,13 +5,13 @@ var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 // database inported library
-// var mongo = require('mongodb');
-// var MongoClient = require('mongodb').MongoClient;
+/*var mongo = require('mongodb');*/
+var MongoClient = require('mongodb').MongoClient;
 // var monk = require('monk');
 // var db = monk('192.168.11.7:27017/sensorApp');
 var assert = require('assert');
-// var ObjectId = require('mongodb').ObjectID;
-var url = 'mongodb://<dbuser>:<dbpassword>@ds013599.mlab.com:13599/niin';
+var ObjectId = require('mongodb').ObjectID;
+var url = "mongodb://nguyentruongthanhtam-sensorapp-3397893:27017/sensorApp";
 // var jsdom = require('jsdom').jsdom;
 //  var document = jsdom('<html></html>', {});
 //  var window = document.defaultView;
@@ -26,83 +26,83 @@ var app = express();
 var server = require('http').Server(app);
 var debug = require('debug')('sensorApp:server');
 var http = require('http');
-var port = normalizePort(process.env.PORT || '8080');
+var port = normalizePort(process.env.PORT);
 var sensorType,sStatus;
-var output,chosenType,chooseDate,chosenHourF,chosenHourT;
+var output,chosenType,chosenDate,chosenHourF,chosenHourT;
 var io = require('socket.io')(server);
 var gDate ={d:"",t:"",full:"",h:0,m:0,s:0};
+var stateRec;
 getDayTime(gDate);
 
-server.listen(port);
+server.listen(process.env.PORT);
 server.on('error', onError);
 server.on('listening', onListening);
 // app.set('port', port);
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
-// MongoClient.connect(url,function(err,database)
-//     {
-//       db = database;
-//       db.collectionNames(gDate.d,function(err,result){
-        
-//         if(result.length>0)
-//         {
-//           db.createCollection(gDate.d,function(err,result)
-//           {if(err) console.log("there is an error: " + err);});
+MongoClient.connect(url,function(err,database)
+     {
+       console.log(url);
+       db = database;
+       /*database.listCollections(gDate.d,function(err,result){*/
+        /* if(result.length>0)
+         {*/
+           db.createCollection(gDate.d,function(err,result)
+           {if(err) console.log("there is an error: " + err);});
           
-//         }
-//       });
-//       if(err) console.log(err);
-//     });
-              setInterval(function(){ 
-            if(typeof(sensortag.temp)!="undefined")
-            {
-                console.log("Adding value to database...");
-                insertDocumentExplicit(db,function(){    
-                });  
-            }
-              },1000);
+         /*}*/
+       /*});*/
+       if(err) console.log(err);
+     });
+              
 io.on('connection',function(socket)
       {
           
           socket.removeAllListeners();
-          socket.on('custom',function(data){
-              sensortag(Number(data.status));
-              sStatus = data.status;
-               console.log("Sensor status: "+ data.status);
-          })
+          var s;
           socket.emit('date',{
             points:output,
-            type:chosenType
+            type:s
           });
-          console.log("chosen type: "+ chosenType);
-          console.log("Sending value from server... "+sensortag.type);
-          setInterval(function(){ 
-            // if(typeof(sensortag.temp)!="undefined")
-            // {
-            // console.log("Adding value to database...");
-            //   insertDocumentExplicit(db,function(){    
-            //     });  
-            // }
+          
+          socket.on('state',function(data){
+            s = data.state;
+            if(data.state==1)
+            {
+              setInterval(function(){ 
             
                 socket.emit('signal',{
-                      sta: sStatus,
-                      type:sensortag.type
+                      sta: data.state,
+                      type:data.type
                   });
              
-             
-                // db.close()
-              
-                              socket.emit('tempOut',{
-                                                        temp: sensortag.temp,
-                                                        humi: sensortag.humi,
-                                                        lux: sensortag.lux
-                                                      });
-             
-            // console.log(typeof(sensortag.temp)); 
-          },1000);
-          socket.on('disconnect',function(){
+              var temp=getRandomInt(20,30);
+              var humi=getRandomInt(50,100);
+              var lux=getRandomInt(20,80);
+              // sending values to dashboard
+                socket.emit('tempOut',
+                {
+                      temp:temp,
+                      humi:humi,
+                      lux:lux
+                });
+                
+                console.log("Adding value to database...");
+                insertDocumentExplicit(db,temp,humi,lux,function(){    
+                });  
             
+            // console.log(typeof(sensortag.temp)); 
+            },1000);
+            }
+            else
+            {
+              socket.emit('signal',{
+                      sta: data.state,
+                      type:data.type
+                  });
+             
+            }
           })
       });
 // sensortag.status = sStatus;
@@ -111,21 +111,23 @@ app.get('/',function(req, res, next) {
 });
 
 app.get('/dashboard', function(req, res) {
-  res.statusCode = 200;
-  // console.log("Sending value from server... "+sensortag.type);
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  // db.collectionNames(function(err, items) {
-        // console.log(items);
+  res.statusCode = 200;
+  
+  // console.log("Sending value from server... "+sensortag.type);
+   db.listCollections().toArray(function(err, items) {
+          if(err) console.log(err);
           res.render('dashboard', {
-            // "datelist" : items
+             "datelist" : items
             });
-        // });
+         });
+   
 });
 
 
 
-app.post('/chooseDate',function(req,res)
+app.post('/report',function(req,res)
 {
   var timestamp = function(objId)
 {
@@ -134,8 +136,8 @@ app.post('/chooseDate',function(req,res)
   var d = new Date(parseInt (t,16) * 1000);
   output.full = d.getTime();
   return output;
-
 }
+
   console.log("choosen date called");
   function exportData(array,option)
     {
@@ -179,31 +181,31 @@ app.post('/chooseDate',function(req,res)
       
   console.log("from: " + chosenHourF + "to: " +  ' on:' + chosenDate);
   
-//   collection =db.collection(chosenDate);
-//   // find entry in specific time period 
+   collection =db.collection(chosenDate);
+   // find entry in specific time period 
 
-//    switch(chosenType)
-//    {
-//     case "temp":
-//         collection.find({hour:{$gte:chosenHourF,$lte:chosenHourT}} , {temp:1}).toArray(function(err,items){
-//          output=exportData(items,1);
-//         });
-//         break;
+    switch(chosenType)
+    {
+     case "temp":
+         collection.find({hour:{$gte:chosenHourF,$lte:chosenHourT}} , {temp:1}).toArray(function(err,items){
+          output=exportData(items,1);
+         });
+         break;
 
-//     case "humi":
-//         collection.find({hour:{$gte:chosenHourF,$lte:chosenHourT}} , {humi:1}).toArray(function(err,items){
-//         output=exportData(items,2);
-//         });
-//         break;
+     case "humi":
+         collection.find({hour:{$gte:chosenHourF,$lte:chosenHourT}} , {humi:1}).toArray(function(err,items){
+         output=exportData(items,2);
+         });
+         break;
 
-//     case "lux":
-//         collection.find({hour:{$gte:chosenHourF,$lte:chosenHourT}} , {lux:1}).toArray(function(err,items){
-// output=exportData(items,3);
-//         });
-//         break;
-//    }
+     case "lux":
+         collection.find({hour:{$gte:chosenHourF,$lte:chosenHourT}} , {lux:1}).toArray(function(err,items){
+ output=exportData(items,3);
+         });
+         break;
+    }
     
-    res.render('date',
+    res.render('report',
     {
       "day":chosenDate
     });
@@ -261,20 +263,18 @@ app.use(function(err, req, res, next) {
 });
 
 // database
-var insertDocumentExplicit = function(db,callback) {  
+var insertDocumentExplicit = function(db,temp,humi,lux,callback) {  
        // getDayTime(gDate);
        getDayTime(gDate);
        // console.log(gDate.t);
-       if(sensortag.temp!=null && sensortag.humi!=null && sensortag.lux!=null)
-       {
           db.collection(gDate.d).insert
           ({
                 "hour": gDate.h,
                 "minute": gDate.m,
                 "second": gDate.s,
-                "temp": sensortag.temp,
-                "humi": sensortag.humi,
-                "lux": sensortag.lux
+                "temp": temp,
+                "humi": humi,
+                "lux": lux
           }, function(err,result) 
             {
               // assert.equal(err, null);
@@ -284,7 +284,7 @@ var insertDocumentExplicit = function(db,callback) {
                 console.log("Error: "+err);
               callback(result);
             });
-        }
+        
         
     };    
 
@@ -316,6 +316,9 @@ function getDayTime(gDate)
     gDate.full = t.getTime();
     // console.log(fullTime);
     // console.log(fullDate);
+}
+ function getRandomInt(min, max) {
+    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 //---------------
 

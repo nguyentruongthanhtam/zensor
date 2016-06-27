@@ -1,0 +1,32 @@
+extends layout
+block ref
+	link(rel='stylesheet', href='/stylesheets/datestyle.css')
+	script(src='/javascripts/report.js',type="text/javascript")
+	
+block nav
+	div.container
+	ul.nav.nav-tabs.nav-pills(role="tablist")
+		li(role="presentation")
+			a(href="https://sensorapp-nguyentruongthanhtam.c9users.io/dashboard",aria-controls="home",role="pill").navHome Home
+block content
+	div.container
+		h1.name Records of #{day}
+		div#container(style="min-width: 310px; height: 400px; margin: 0 auto;backgound-color: blue")
+	//- 	table#tb.table.table-bordered.table-hover
+	//- 		thead
+	//- 			tr
+	//- 				td Hour
+	//- 				td Minute
+	//- 				td Second
+	//- 				td Temperature
+	//- 				td Humidity
+	//- 		tbody
+	//- 		each item, l in datelist
+	//- 				tr
+	//- 					td #{item.hour}
+	//- 					td #{item.minute}
+	//- 					td #{item.second}
+	//- 					td #{item.temp}
+	//- 					td #{item.humi}
+						
+	//- 

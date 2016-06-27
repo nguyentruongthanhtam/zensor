@@ -1,13 +1,15 @@
 extends layout
 block ref
 	link(rel='stylesheet', href='/stylesheets/style.css')
-	script(src='/javascripts/userlist.js',type="text/javascript")
+	script(src='/javascripts/dashboard.js',type="text/javascript")
 	script(src='https://code.highcharts.com/4.2.2/highcharts-more.js',type="text/javascript")
 
 block content
 	div.container
-		
-		
+		div.row
+			div.col-sm-12.col-md-12.col-lg-12
+				button.btn-default.btn(type="button",name="state",value="1",onclick='discover();') discover
+				button.btn-default.btn(type="button",name="state",value="2",onclick='return connect();') connect
 		div.icon
 			//- img#connected(src="connected1small.png")
 			div.circle2.blackC
@@ -47,10 +49,10 @@ block content
 					div.panel-heading 
 						h3.panel-title Show Records
 					div.panel-body
-						form(action="http://130.232.142.28:8080/chooseDate",method="post",role='form')
+						form(action="/report",method="post",role='form')
 							select.form-group.form-control#dateChoice(name="dateForm")
-								//- each item, l in datelist
-								//- 	option(value="#{item.name}") #{item.name}
+								each item, l in datelist
+									option(value=item.name)= item.name
 							select.form-group.form-control#typeChoice(name="typeForm")
 								option(value='temp') Temperature 
 								option(value='humi') Humidity
